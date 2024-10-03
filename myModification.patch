@@ -1,0 +1,60 @@
+diff --git a/torch_utils/ops/bias_act.py b/torch_utils/ops/bias_act.py
+index 4bcb409..70a4ce3 100755
+--- a/torch_utils/ops/bias_act.py
++++ b/torch_utils/ops/bias_act.py
+@@ -39,16 +39,17 @@ _plugin = None
+ _null_tensor = torch.empty([0])
+ 
+ def _init():
+-    global _inited, _plugin
+-    if not _inited:
+-        _inited = True
+-        sources = ['bias_act.cpp', 'bias_act.cu']
+-        sources = [os.path.join(os.path.dirname(__file__), s) for s in sources]
+-        try:
+-            _plugin = custom_ops.get_plugin('bias_act_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
+-        except:
+-            warnings.warn('Failed to build CUDA kernels for bias_act. Falling back to slow reference implementation. Details:\n\n' + traceback.format_exc())
+-    return _plugin is not None
++    # global _inited, _plugin
++    # if not _inited:
++    #     _inited = True
++    #     sources = ['bias_act.cpp', 'bias_act.cu']
++    #     sources = [os.path.join(os.path.dirname(__file__), s) for s in sources]
++    #     try:
++    #         _plugin = custom_ops.get_plugin('bias_act_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
++    #     except:
++    #         warnings.warn('Failed to build CUDA kernels for bias_act. Falling back to slow reference implementation. Details:\n\n' + traceback.format_exc())
++    # return _plugin is not None
++    return False
+ 
+ #----------------------------------------------------------------------------
+ 
+diff --git a/torch_utils/ops/upfirdn2d.py b/torch_utils/ops/upfirdn2d.py
+index ceeac2b..6145d18 100755
+--- a/torch_utils/ops/upfirdn2d.py
++++ b/torch_utils/ops/upfirdn2d.py
+@@ -25,14 +25,15 @@ _plugin = None
+ 
+ def _init():
+     global _inited, _plugin
+-    if not _inited:
+-        sources = ['upfirdn2d.cpp', 'upfirdn2d.cu']
+-        sources = [os.path.join(os.path.dirname(__file__), s) for s in sources]
+-        try:
+-            _plugin = custom_ops.get_plugin('upfirdn2d_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
+-        except:
+-            warnings.warn('Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation. Details:\n\n' + traceback.format_exc())
+-    return _plugin is not None
++    # if not _inited:
++    #     sources = ['upfirdn2d.cpp', 'upfirdn2d.cu']
++    #     sources = [os.path.join(os.path.dirname(__file__), s) for s in sources]
++    #     try:
++    #         _plugin = custom_ops.get_plugin('upfirdn2d_plugin', sources=sources, extra_cuda_cflags=['--use_fast_math'])
++    #     except:
++    #         warnings.warn('Failed to build CUDA kernels for upfirdn2d. Falling back to slow reference implementation. Details:\n\n' + traceback.format_exc())
++    # return _plugin is not None
++    return False
+ 
+ def _parse_scaling(scaling):
+     if isinstance(scaling, int):
