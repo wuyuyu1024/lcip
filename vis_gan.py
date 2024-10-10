@@ -348,11 +348,12 @@ if __name__ == '__main__':
     w_scaler = MinMaxScaler_T()
     w_scaled = w_scaler.fit_transform(w)
 
-    X_train, X_test, y_train, y_test = train_test_split(w_scaled, y, train_size=5000, random_state=42)
+    # X_train, X_test, y_train, y_test = train_test_split(w_scaled, y, train_size=5000, random_state=42)
+    X_train, y_train = w_scaled, y
 
     print('w max', X_train.max())
     print('w min', X_train.min())
-    clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(1024, 512))
+    clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
     dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
     clf.fit(dataset, epochs=150)
     print("training set acc: ", clf.score(X_train, y_train))
