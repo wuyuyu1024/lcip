@@ -57,7 +57,7 @@ class NonInteractiveScatterPlotItem(pg.ScatterPlotItem):
         pass  # Do nothing
 
 
-class ENNinvTool(QWidget):
+class LCIP_GUI_Basic(QWidget):
 
     def __init__(self, Pinv, X, X2d, y=None, data_shape=None, current_z=None, clf=None, GRID=100, padding=0.1, cmap='tab10', show3d=True, device=None) -> None:
         """

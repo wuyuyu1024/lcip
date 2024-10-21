@@ -1,10 +1,10 @@
 import sys
-sys.path.append( './stylegan2-ada-pytorch')
+sys.path.append('./stylegan2-ada-pytorch')
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import numpy as np
 import torch
-from vis_basic import ENNinvTool
+from gui.gui_basic import LCIP_GUI_Basic
 import pickle
 
 import os
@@ -72,7 +72,7 @@ class MinMaxScaler_T(object):
     
 
 
-class ENNinvTool_G(ENNinvTool):
+class LCIP_GUI_GAN(LCIP_GUI_Basic):
 
     def __init__(self, clf=None, Pinv=None, current_z=None, X=None, y=None, X2d=None, GRID=100, padding=0.1, cmap='tab10', show3d=True, device=None, data_shape=None, G_path=None, w_scaler=None) -> None:
         self.w_scaler = w_scaler
