@@ -7,6 +7,7 @@ import numpy as np
 from scipy.interpolate import RBFInterpolator
 from sklearn.model_selection import train_test_split
 
+from tqdm import tqdm
 import joblib
 import os
 
@@ -214,7 +215,7 @@ class LCIP:
         loss_list = []
         val_loss_list = []
         count = 0
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             epoch_loss = []
             for batch_x, batch_x2d in dataloader:
                 if self.mini_epochs > 0: ## use adv loss

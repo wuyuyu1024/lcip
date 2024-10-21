@@ -338,11 +338,10 @@ if __name__ == '__main__':
     GRID = 100
 
     # w = np.load('../batchProject_styleGAN2/out_batch/projected_w_all.npz')['w']
-    w = np.load('cache/AFHQv2/projected_w_all.npz')['w']
-    w= w.squeeze()
-    y = np.zeros(w.shape[0])
-    y[5065 : -4593] = 1
-    y[-4593: ] = 2
+    w = np.load('datasets/w_afhqv2/w_afhqv2.npy')
+    w = w.squeeze()
+    print(w.shape)
+    y = np.load('datasets/w_afhqv2/labels.npy')
 
     w = torch.from_numpy(w).float()
     w_scaler = MinMaxScaler_T()
@@ -355,10 +354,10 @@ if __name__ == '__main__':
     print('w min', X_train.min())
     clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
     dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
-    clf.fit(dataset, epochs=150)
+    # clf.fit(dataset, epochs=150)
     print("training set acc: ", clf.score(X_train, y_train))
 
-    proj.fit(X_train, epochs=150, early_stop=False)
+    proj.fit(X_train, epochs=1, early_stop=False)
     X2d = proj.X2d
     # mylabels = proj.Pinv.labels
 
@@ -366,7 +365,7 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication.instance()
     if not app:  # Create new instance if it doesn't exist
         app = QtWidgets.QApplication(sys.argv)
-    w = ENNinvTool_G(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='../stylegan2-ada-pytorch/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+    w = ENNinvTool_G(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
     # w.showMaximized()
     w.show()
     sys.exit(app.exec())
@@ -383,7 +382,7 @@ if __name__ == '__main__':
         app = QtWidgets.QApplication.instance()
         if not app:
             app = QtWidgets.QApplication(sys.argv)
-        w = ENNinvTool_G(clf=None, Pinv=Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='../stylegan2-ada-pytorch/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+        w = ENNinvTool_G(clf=None, Pinv=Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
         w.show()
         sys.exit(app.exec())
 
