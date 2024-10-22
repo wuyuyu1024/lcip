@@ -365,7 +365,7 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication.instance()
     if not app:  # Create new instance if it doesn't exist
         app = QtWidgets.QApplication(sys.argv)
-    w = ENNinvTool_G(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+    w = LCIP_GUI_GAN(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
     # w.showMaximized()
     w.show()
     sys.exit(app.exec())
@@ -382,7 +382,7 @@ if __name__ == '__main__':
         app = QtWidgets.QApplication.instance()
         if not app:
             app = QtWidgets.QApplication(sys.argv)
-        w = ENNinvTool_G(clf=None, Pinv=Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+        w = LCIP_GUI_GAN(clf=None, Pinv=Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
         w.show()
         sys.exit(app.exec())
 

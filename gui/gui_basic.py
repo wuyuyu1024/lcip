@@ -1282,7 +1282,8 @@ class LCIP_GUI_Basic(QWidget):
     def image_moved(self, evt):
         # TODO: detect if mouse in the image
         ## 
-        if self.shap:
+        # if self.shap: 
+        if True:  ## alway show the circle
             viewbox = self.win1.getPlotItem().getViewBox()
             view_coords = viewbox.mapSceneToView(evt)
             mouse_pos = np.array([[view_coords.x(), view_coords.y()]])

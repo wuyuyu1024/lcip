@@ -7,7 +7,7 @@ git clone https://github.com/NVlabs/stylegan2-ada-pytorch.git
 cd stylegan2-ada-pytorch
 
 :: Apply the patch (assuming you have a way to apply patches on Windows, e.g., Git Bash)
-git apply ..\myModification.patch
+git apply ..\scripts\myModification.patch
 
 :: Navigate back to the previous directory
 cd ..
