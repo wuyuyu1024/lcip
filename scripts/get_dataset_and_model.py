@@ -10,6 +10,10 @@ data_url = {
 }
 
 for output_path, url in data_url.items():
+    ## get name of file
+    name = output_path.split('/')[-1]
+    print(f"Downloading {name}:")
+
     get_remote_file(output_path, url)
     ## unzip in if end with zip
     if output_path.endswith('.zip'):
