@@ -5,7 +5,7 @@ projections by maneuvering the lost information</h1>
   <p align="center">
     <a href="https://wuyuyu1024.github.io/"><strong>Yu Wang</strong></a>
     ·
-    <a href="https://"><strong>Frederik L. Dennig</strong></a>
+    <a href="https://frederikdennig.com/"><strong>Frederik L. Dennig</strong></a>
     ·
     <a href="https://webspace.science.uu.nl/~telea001/"><strong>Alexandru Telea</strong></a>
     (To befinalized)
@@ -67,6 +67,8 @@ If you are using windows, you can run:
 ``` 
 .\get_data_model.bat
 ```
+
+<li> TODO: download the pre-trained LCIP model with AFHQv2 dataset used in the paper. (Optional)
 </ol>
 
 <!-- ## Run Gradio visualizer in Docker 
@@ -108,7 +110,9 @@ To start the GUI with MNIST dataset demo, run:
 python main_basic.py
 ```
 
-This GUI supports editing GAN-generated images. To edit a real image, you need to first perform GAN inversion using tools like [PTI](https://github.com/danielroich/PTI). Then load the new latent code and model weights to the GUI.
+This GUI is designed for our proposed controllable inverse projection method. You can control the inverse projection locally by dragging the sliders, and see the changes in real-time.
+
+This tool can also be used for general inverse projection method (e.g., [NNinv](https://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA19/paper.pdf), [iLAMP](https://ieeexplore.ieee.org/document/6400489), [RBF](https://www.sciencedirect.com/science/article/pii/S0097849315000230), [iMDS](http://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA24/paper.pdf)). However, users can only interact with the static inverse projection.
 
 <!-- You can run DragGAN Gradio demo as well, this is universal for both windows and linux:
 ```sh
@@ -117,8 +121,9 @@ python visualizer_drag_gradio.py
 
 ## Acknowledgement
 
-The demo on AFHQv2 dataset uses [StyleGAN2](https://github.com/NVlabs/stylegan2) code and its pretrained model to generate images from the latent codes.
-
+The latent codes of AfHQv2 dataset are obtained inverting the StyleGAN2 model using code modified from 
+[NVlabs/stylegan2-ada-pytorch/projector.py](https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/projector.py).
+The demo on AFHQv2 dataset uses [StyleGAN2](https://github.com/NVlabs/stylegan2-ada-pytorch) code and its pretrained model to generate images from the latent codes. 
 
 ## License
 <!-- 

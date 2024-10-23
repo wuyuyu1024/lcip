@@ -1,32 +1,24 @@
 import sys
-# make blob dataimport sys
-import os
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+import numpy as np
+import torch
+from PySide6 import QtWidgets
+
 from sklearn.model_selection import train_test_split
-# from ENNinv import  PPinv_wrapper, DisentangledNNinv
-from lcip import LCIP
-from classifiers import NNClassifier
-from umap import UMAP
-import matplotlib.pyplot as plt
-from matplotlib import cm
-# from NNinv import NNinv_torch, KNN_Pinv
 
+from umap import UMAP
 from sklearn.manifold import TSNE, MDS, Isomap
 # import PCA
 from sklearn.decomposition import PCA
-import torch
+
+from classifiers import NNClassifier
+
 # from lamp import Pinv_ilamp
-# swiss roll
-from sklearn.datasets import make_swiss_roll
+# from NNinv import NNinv_torch, KNN_Pinv
 # from rbf_inv import RBFinv
-import torchvision
-import joblib
-import numpy as np
+from lcip import LCIP
 from gui import LCIP_GUI_GAN, MinMaxScaler_T
-from PySide6 import QtWidgets
+
 
 
 class Simple_P_wrapper:
@@ -60,30 +52,17 @@ p = TSNE(n_components=2, random_state=420, n_jobs=8)
 # p = MDS(n_components=2, random_state=420, n_jobs=8)
 # p = Isomap(n_components=2, n_jobs=8)
 
-# p = ShaRP(original_dim=32*32*3, n_classes=10, 
-#                 variational_layer="diagonal_normal",
-#                 variational_layer_kwargs=dict(kl_weight=0.1),
-#                 bottleneck_activation="linear",
-#                 # bottleneck_l1=0.0,
-#                 # bottleneck_l2=0.5,
-#         )
 
-
+proj = Simple_P_wrapper(p, LCIP(z_dim=16, mini_epochs=5, beta=0.01, z_neighbor=10, z_finder_method='rbf', layers_e=None, layers_d=None, weight_y=0, use_BN=False)) # AFHQv2 
 # proj = Simple_P_wrapper(p, NNinv_torch())#[256, 256, 256, 256]
 # proj = Simple_P_wrapper(p, ENNinv(z_dim=2))
-# proj = Simple_P_wrapper(p, DisentangledNNinv(z_dim=64, mini_epochs=5, beta=0.01, z_neighbor=10, z_finder_method='rbf', layers_e=[512, 512, 512, 512], layers_d=[512, 512, 512, 512], weight_y=0, use_BN=False)) # 3d
-proj = Simple_P_wrapper(p, LCIP(z_dim=16, mini_epochs=5, beta=0.01, z_neighbor=10, z_finder_method='rbf', layers_e=None, layers_d=None, weight_y=0, use_BN=False)) # AFHQv2 
-
 # proj = Simple_P_wrapper(p, KNN_Pinv()) # coil20
 # proj = Simple_P_wrapper(p, Pinv_ilamp(k=6))
-# proj = Simple_P_wrapper(p, RBFinv(function_type='linear', scipy=True))
 # proj = Simple_P_wrapper(p, RBFinv())
-# proj = Simple_P_wrapper(p, RBFinv(function_type='thin_plate_spline', scipy=True))
+
 GRID = 100
 
-# w = np.load('../batchProject_styleGAN2/out_batch/projected_w_all.npz')['w']
 w = np.load('datasets/w_afhqv2/w_afhqv2.npy')
-w = w.squeeze()
 print(w.shape)
 y = np.load('datasets/w_afhqv2/labels.npy')
 
@@ -92,18 +71,17 @@ w_scaler = MinMaxScaler_T()
 w_scaled = w_scaler.fit_transform(w)
 
 X_train, X_test, y_train, y_test = train_test_split(w_scaled, y, train_size=5000, random_state=42)
-# X_train, y_train = w_scaled, y
 
-print('w max', X_train.max())
-print('w min', X_train.min())
-clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
-dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
+### train a classifier (for making decision maps)
+# print('w max', X_train.max())
+# print('w min', X_train.min())
+# clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
+# dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
 # clf.fit(dataset, epochs=150)
-print("training set acc: ", clf.score(X_train, y_train))
+# print("training set acc: ", clf.score(X_train, y_train))
 
-proj.fit(X_train, epochs=100, early_stop=False)
+proj.fit(X_train, epochs=100, early_stop=False) ## train the projection and the inverse
 X2d = proj.X2d
-# mylabels = proj.Pinv.labels
 
 ### use this for unsaved model
 app = QtWidgets.QApplication.instance()
