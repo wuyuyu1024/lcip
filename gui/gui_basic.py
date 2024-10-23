@@ -786,19 +786,26 @@ class LCIP_GUI_Basic(QWidget):
 
 
         ###################### console display
-        self.console_list = ['Press Shift to select Real Sample', ' ', ' ', ' ', ' ', '']
+        self.console_list = [
+            'Press number key (0-4), then click on the map to set an observation window;',
+            'Press Shift and click on a scatter point to select Real Sample;',
+            ' ', 
+        ]
+
         self.console = QtWidgets.QTextEdit()
         self.console.setReadOnly(True)
+
         self.console.setText('\n'.join(self.console_list))
-        # self.console.setStyleSheet("background-color: black; color: white;")
-        self.console.setFont(QtGui.QFont("Courier", 10))
-        self.console.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+
+        self.console.setFont(QtGui.QFont("Courier", 1))
+
+        # Enable text wrapping at the widget width
+        self.console.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+
+        # Vertical scrollbar always visible, horizontal scrollbar disabled 
         self.console.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.console.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        # self.console.setFixedHeight(200)
-        # self.console.setFixedWidth(300)
-        self.console.setWordWrapMode(QtGui.QTextOption.NoWrap)
-        
+                
 
         ### score label block 
         self.score_label_accm = QtWidgets.QLabel('Map Accuracy: --')
@@ -1674,227 +1681,3 @@ class LCIP_GUI_Basic(QWidget):
 
 
 
-if __name__ == '__main__':
-    import sys
-    # make blob dataimport sys
-    import os
-    # sys.path.append('../pyrite_dbm_backup')
-    sys.path.append('../DeepView')
-    sys.path.append('../dbm_evaluation')
-    # sys.path.append('../ShaRP/code')
-    from sklearn.datasets import make_blobs
-    from sklearn.preprocessing import MinMaxScaler
-    from sklearn.linear_model import LogisticRegression
-    # import knn
-    # from sklearn.neighbors import NearestNeighbors
-    from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-    from sklearn.model_selection import train_test_split
-    from ENNinv import  PPinv_wrapper, DisentangledNNinv
-    from classifiers import NNClassifier
-    from umap import UMAP
-    import matplotlib.pyplot as plt
-    from matplotlib import cm
-    # from NNinv import NNinv_torch, KNN_Pinv
-    # import MNIST data or download 
-    # from tensorflow.keras.datasets import mnist, fashion_mnist, cifar10
-    # import tsne
-    from sklearn.manifold import TSNE, MDS, Isomap
-    # import PCA
-    from sklearn.decomposition import PCA
-    import torch
-    # from lamp import Pinv_ilamp
-    # swiss roll
-    # from sklearn.datasets import make_swiss_roll
-    # from rbf_inv import RBFinv
-    # from sharp import ShaRP
-    import torchvision
-
-
-    class Simple_P_wrapper:
-        def __init__(self, P, Pinv):
-            self.P = P
-            self.Pinv = Pinv
-        def __call__(self, x):
-            return self.P(x)
-        def transform(self, x):
-            return self.P.transform(x)
-        # with keywrod argumentscon
-        def inverse_transform(self, x, **kwargs):
-            return self.Pinv.transform(x, **kwargs)
-
-        def fit(self, x, x2d=None, **kwargs):
-            if x2d is None:
-                self.X2d = self.P.fit_transform(x).astype('float32')
-            else:
-                self.X2d = x2d
-            self.Pinv.fit(self.X2d, x, **kwargs)
-            return self
-        
-    
-
-    # p = UMAP(n_components=2, random_state=420) #  min_dist=0.9, , n_neighbors=50
-    p = TSNE(n_components=2, random_state=420, n_jobs=8)
-    # p = PCA(n_components=2)
-    # p = MDS(n_components=2, random_state=420, n_jobs=8)
-    # p = Isomap(n_components=2, n_jobs=8)
-
-    # p = ShaRP(original_dim=32*32*3, n_classes=10, 
-    #                 variational_layer="diagonal_normal",
-    #                 variational_layer_kwargs=dict(kl_weight=0.1),
-    #                 bottleneck_activation="linear",
-    #                 # bottleneck_l1=0.0,
-    #                 # bottleneck_l2=0.5,
-    #         )
-    
-
-    # proj = Simple_P_wrapper(p, NNinv_torch())#[256, 256, 256, 256]
-    # proj = Simple_P_wrapper(p, ENNinv(z_dim=2))
-    # proj = Simple_P_wrapper(p, DisentangledNNinv(z_dim=1, mini_epochs=4, beta=0.1, z_neighbor=10, z_finder_method='knn', layers_e=[512, 512, 512], layers_d=[512, 512, 512, 512], weight_y=0)) # 3d
-    proj = Simple_P_wrapper(p, DisentangledNNinv(z_dim=16, mini_epochs=5, beta=0.1, z_neighbor=10, z_finder_method='rbf', layers_e=[512, 512, 512], layers_d=[512, 512, 512, 512])) # MNIST
-    # proj = Simple_P_wrapper(p, KNN_Pinv()) # coil20
-    # proj = Simple_P_wrapper(p, Pinv_ilamp(k=6))
-    # proj = Simple_P_wrapper(p, RBFinv(function_type='linear', scipy=True))
-    # proj = Simple_P_wrapper(p, RBFinv())
-    # proj = Simple_P_wrapper(p, RBFinv(function_type='thin_plate_spline', scipy=True))
-    GRID = 100
-    
-    # blob
-    X_train, y_train = make_blobs(n_samples=500, centers=6, n_features=3, random_state=0, cluster_std=1.2)
-    
-    # # MNIST
-    # (X, y), (_, _) = mnist.load_data()
-    # X = X.reshape(-1, 28*28)
-    # X = X.astype('float32') / 255.
-    # # train test split
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=3000, test_size=2000, random_state=420)
-
-    # ## fashion MNIST
-    # (X, y), (_, _) = fashion_mnist.load_data()
-    # X = X.reshape(-1, 28*28)
-    # X = X.astype('float32') / 255.
-    # # train test split
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=5000, test_size=2000, random_state=420)
-    
-    # swiss roll
-    # X, y = make_swiss_roll(n_samples=3000, noise=0.2, random_state=0, hole=False)
-    # # split into 2 swiss roll by removing the middle part
-    # # remove_ind = (X[:, 1] > 8) & (X[:, 1] < 11)
-    # # X = X[~remove_ind]
-    # # y = y[~remove_ind] 
-    # X = X.astype('float32')
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8, random_state=420)
-    # print(y)
-
-    ## cifar10
-    # (X_cifar, y_cifar), (_, _) = cifar10.load_data()
-    # X_cifar = X_cifar.reshape(-1, 32*32*3)
-    # X_cifar = X_cifar
-    # # train test split
-    # X_cifar, _, y_cifar, _ = train_test_split(X_cifar, y_cifar, train_size=10000, test_size=2000, random_state=420)
-    # scaler = MinMaxScaler()
-    # X_train = scaler.fit_transform(X_cifar).astype('float32') / 255.
-    # y_train = y_cifar.flatten()
-
-    ## coil20
-    # coil_path = '../datasets/coil-20'
-    # transforms = torchvision.transforms.Compose([
-    #         torchvision.transforms.Grayscale(),
-    #         torchvision.transforms.Resize((64, 64)),
-    #         torchvision.transforms.ToTensor()
-    #         # grayscale
-
-    #         ])
-    # coil20 = torchvision.datasets.ImageFolder(coil_path, transform=transforms)
-    # print(coil20[0][0].shape)
-    # X_coil = []
-    # y_coil = []
-    # for i in range(len(coil20)):
-    #         X_coil.append(coil20[i][0].numpy().flatten())
-    #         y_coil.append(coil20[i][1])
-    # X_coil = np.array(X_coil)
-    # y_coil = np.array(y_coil)
-    # X_coil = X_coil.astype('float32')
-    # print(X_coil.shape)
-    # X_train, X_test, y_train, y_test = train_test_split(X_coil, y_coil, train_size=0.8, random_state=420)
-    ####################
-
-    ### dont forget to scale the data !!!!
-    scaler = MinMaxScaler()
-    X_train = scaler.fit_transform(X_train).astype('float32')
-
-    # clf = LogisticRegression(random_state=0).fit(X_train, y_train)
-    # clf = KNeighborsClassifier(n_neighbors=5).fit(X_train, y_train)
-    ################################
-    clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(200, ))
-    dataset = torch.utils.data.TensorDataset(torch.from_numpy(X_train).float().to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
-    clf.fit(dataset, epochs=100)
-    print(clf.score(X_train, y_train))
-
-
-    # umap = UMAP(n_neighbors=5, min_dist=0.3, metric='euclidean')
-
-    
-    # ENNinv = ENNinv()
-    # ENNinv.fit(X2d, X)
-    # PPinv = PPinv_wrapper(UMAP(), ENNinv())
-    ## general
-    # proj.fit(X_train, epochs=150, early_stop=False)
-    ## for sharp
-    # p.fit(X_train, y_train, epochs=20, verbose=False, batch_size=128)
-    # x2d = p.transform(X_train)
-    proj.fit(X_train, epochs=150, early_stop=True)
-    X2d = proj.X2d
-    # mylabels = proj.Pinv.labels
-
-
-    #####
-    ## check nninv score
-    # proj_nninv.fit(X_train)
-    # X2d_nninv = proj_nninv.X2d
-    # X_train_rec = proj_nninv.inverse_transform(X2d_nninv)
-    # predicted_rec = clf.predict(X_train_rec)
-    # print('nninv score', accuracy_score(y_train, predicted_rec))
-
-    # # proj_nninv_keras = P_wrapper(NNinv_Torch=1)
-    # # proj_nninv_keras.fit(X_train)
-    # # X2d_nninv_keras = proj_nninv_keras.transform(X_train)
-    # # X_train_rec_keras = proj_nninv_keras.inverse_transform(X2d_nninv_keras)
-    # # predicted_rec_keras = clf.predict(X_train_rec_keras)
-    # # print('nninv torch score', accuracy_score(y_train, predicted_rec_keras))
-
-    # proj_nninv_keras = P_wrapper(NNinv_Keras=1)
-    # proj_nninv_keras.fit(X_train)
-    # X2d_nninv_keras = proj_nninv_keras.transform(X_train)
-    # X_train_rec_keras = proj_nninv_keras.inverse_transform(X2d_nninv_keras)
-    # predicted_rec_keras = clf.predict(X_train_rec_keras)
-    # print('nninv keras score', accuracy_score(y_train, predicted_rec_keras))
-    # #####
-    # z_mean = proj.Pinv.encode(X_train, sample=False)
-    # z = proj.Pinv.encode(X_train, sample=True)
-    #check if it's normal distribution
-    # print(z.mean(axis=0), z.std(axis=0))
-
-    #######################Debug
-    # map_builder = MapBuilder(clf, proj, X, y, grid=GRID)
-    # ax_grad = map_builder.plot_gradient_map()
-    # # X2d_scaled =  map_builder.scaler2d.transform(X_2d)
-    # # ax.scatter(X2d_scaled[:,0], X2d_scaled[:,1], c=blob0[1], cmap='tab10')
-    # # grads = map_builder.get_gradient_map(xy=map_builder.scaler2d.transform(XY))
-    # # print(grads.mean(), grads.std())
-    # dbm = map_builder.plot_prob_map(proba=False, cmap=cm.tab10)
-    # plt.show()
-    # #####################Debug
-    #### degub the latent space show to axes
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-    # ax1.scatter(z[:,0], z[:,1], c=y_train, cmap='tab10', s=5)
-    # ax2.scatter(z_mean[:,0], z_mean[:,1], c=y_train, cmap='tab10', s=5)
-    # plt.show()
-
-    # Check if QApplication already exists
-    app = QtWidgets.QApplication.instance()
-    if not app:  # Create new instance if it doesn't exist
-        app = QtWidgets.QApplication(sys.argv)
-    w = ENNinvTool(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(28,28,1))
-    # w.showMaximized()
-    w.show()
-    sys.exit(app.exec())
