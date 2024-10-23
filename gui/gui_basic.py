@@ -166,13 +166,12 @@ class LCIP_GUI_Basic(QWidget):
         if self.show3d:
             hlayout.addWidget(self.win2.native, 2)
             hlayout.addWidget(self.win1, 2)
-            hlayout.addLayout(self.win3, 1)
+            hlayout.addWidget(self.win3, 1)
         else:
             hlayout.addWidget(self.win1, 4)
-            hlayout.addLayout(ob_col, 1)
-            hlayout.addLayout(self.win3, 3)
+            hlayout.addWidget(ob_col, 1)
+            hlayout.addWidget(self.win3, 3)
         # force the first one to be square
-    
         self.setLayout(hlayout)
         self.z_change_stack = []
         self.mouse_pressed = False
@@ -181,6 +180,12 @@ class LCIP_GUI_Basic(QWidget):
         self.select_mode = False
         self.ob_ind = None
         self.cache_time = 0
+        self.setMouseTracking(True)
+
+    def mouseMoveEvent(self, event):
+        # print(event)
+        if self.mouse_pos is not None:
+            self.plot_circle(center=self.mouse_pos[0], radius=self.shape_radius)
 
 
     def init_z(self):
@@ -686,6 +691,7 @@ class LCIP_GUI_Basic(QWidget):
         slider1.valueChanged.connect(self.slider1_changed)
         slider2.valueChanged.connect(self.slider2_changed)
         slider3.valueChanged.connect(self.slider3_changed)
+        slider_control.sliderPressed.connect(self.correct_circle_location)
         slider_control.sliderReleased.connect(self.slider_control_changed)
         self.update_sliderValue_only = False
         ################################################################
@@ -857,7 +863,9 @@ class LCIP_GUI_Basic(QWidget):
     
         # vlayout.addWidget(plot_real)
         # vlayout.addWidget(plot_inv)
-        return vlayout, inverse_onclick, real
+        widget_widget = QtWidgets.QWidget()
+        widget_widget.setLayout(vlayout)
+        return widget_widget, inverse_onclick, real
     
     def reset_z(self):
         self.current_z = self.initial_z.copy()
@@ -944,8 +952,11 @@ class LCIP_GUI_Basic(QWidget):
             label.setFont(QtGui.QFont("", 23, QtGui.QFont.Bold))
             self.obtext_list.append(label)
             vb = ob_widget.getViewBox()
-            vb.setAspectLocked(True)            
-        return vlayout, ob_list
+            vb.setAspectLocked(True)  
+        widget_all = QtWidgets.QWidget()
+        widget_all.setLayout(vlayout)
+
+        return widget_all, ob_list
 
         
 
@@ -1086,7 +1097,11 @@ class LCIP_GUI_Basic(QWidget):
             case 'distance':
                 self.scatter2d.setData(self.X2d[:,0], self.X2d[:,1], symbol='o', size=sizes, brush=self.color_dist*255)
 
+    def correct_circle_location(self):
+        self.plot_circle(center=self.mouse_pos[0], radius=self.shape_radius)
+
     def slider_control_changed(self):
+        self.plot_circle(center=self.mouse_pos[0], radius=self.shape_radius)
         ## do the calculation only when certain time has passed
         value = self.control_silder.value()
         # time_now = time.time()
@@ -1254,7 +1269,7 @@ class LCIP_GUI_Basic(QWidget):
     # Define callback function for clicked points on the image
     def image_clicked(self, event):
         # print('clicked on image', event)
-        print(self.mouse_pos)
+        # print(self.mouse_pos)
         if event.button() == QtCore.Qt.LeftButton:
             self.mouse_pressed = True
             self.update_inverse_window(event.position())
@@ -1287,8 +1302,6 @@ class LCIP_GUI_Basic(QWidget):
                     self.update_3d()
 
     def image_moved(self, evt):
-        # TODO: detect if mouse in the image
-        ## 
         # if self.shap: 
         if True:  ## alway show the circle
             viewbox = self.win1.getPlotItem().getViewBox()
