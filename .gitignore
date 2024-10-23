@@ -5,6 +5,7 @@ cache/
 stylegan2-ada-pytorch/
 eval_results/
 test.py
+*.gif
 
 
 # Byte-compiled / optimized / DLL files
