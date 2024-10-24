@@ -1,5 +1,5 @@
 import sys
-
+import os
 import numpy as np
 import torch
 from PySide6 import QtWidgets
@@ -8,14 +8,10 @@ from sklearn.model_selection import train_test_split
 
 from umap import UMAP
 from sklearn.manifold import TSNE, MDS, Isomap
-# import PCA
-from sklearn.decomposition import PCA
 
 from classifiers import NNClassifier
 
-# from lamp import Pinv_ilamp
-# from NNinv import NNinv_torch, KNN_Pinv
-# from rbf_inv import RBFinv
+from invprojection import Pinv_ilamp, NNinv_torch, RBFinv
 from lcip import LCIP
 from gui import LCIP_GUI_GAN, MinMaxScaler_T
 
@@ -50,48 +46,55 @@ class Simple_P_wrapper:
 
 GRID = 100
 
-w = np.load('datasets/w_afhqv2/w_afhqv2.npy')
+## print current working directory
+print('Current working directory: ', os.getcwd())
+y = np.load('./datasets/w_afhqv2/labels.npy')
+w = np.load('./datasets/w_afhqv2/w_afhqv2.npy')
 print(w.shape)
-y = np.load('datasets/w_afhqv2/labels.npy')
 
 w = torch.from_numpy(w).float()
 w_scaler = MinMaxScaler_T()
 w_scaled = w_scaler.fit_transform(w)
 
 
+P_dict ={
+    'umap': UMAP(n_components=2, random_state=420),
+    'tsne': TSNE(n_components=2, random_state=420, n_jobs=8),
+}
 
-def train_new_model():
+
+Pinv_dict = {
+    'ilamp': Pinv_ilamp(k=6),
+    'nninv': NNinv_torch(),
+    'rbf': RBFinv(),
+    'lcip': LCIP(beta=0.01)
+}
+
+def train_new_model(P_name='umap', Pinv_name='lcip', clf=None):
     X_train, X_test, y_train, y_test = train_test_split(w_scaled, y, train_size=5000, random_state=42)
 
+    P = P_dict[P_name]
+    Pinv = Pinv_dict[Pinv_name]
+    proj = Simple_P_wrapper(P, Pinv)
+
     ### train a classifier (for making decision maps)
-    # clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
-    # dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
-    # clf.fit(dataset, epochs=150)
+    if clf:
+        print('Training the classifier')
+        clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
+        dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
+        clf.fit(dataset, epochs=100)
 
-    # P = UMAP(n_components=2, random_state=420) #  min_dist=0.9, , n_neighbors=50
-    P = TSNE(n_components=2, random_state=420, n_jobs=8)
-    # P = PCA(n_components=2)
-    # P = MDS(n_components=2, random_state=420, n_jobs=8)
-    # P = Isomap(n_components=2, n_jobs=8)
-
-    proj = Simple_P_wrapper(P, LCIP(z_dim=16, mini_epochs=5, beta=0.01, z_neighbor=10, z_finder_method='rbf', layers_e=None, layers_d=None, weight_y=0, use_BN=False)) # AFHQv2 
-    # proj = Simple_P_wrapper(p, NNinv_torch())#[256, 256, 256, 256]
-    # proj = Simple_P_wrapper(p, ENNinv(z_dim=2))
-    # proj = Simple_P_wrapper(p, KNN_Pinv()) # coil20
-    # proj = Simple_P_wrapper(p, Pinv_ilamp(k=6))
-    # proj = Simple_P_wrapper(p, RBFinv())
-
-
-    proj.fit(X_train, epochs=100, early_stop=False) ## train the projection and the inverse
+    print(f'Fitting the projection [{P_name}] and the inverse projection [{Pinv_name}]')
+    proj.fit(X_train, epochs=120, early_stop=False) ## train the projection and the inverse
     X2d = proj.X2d
 
-    ### use this for unsaved model
     app = QtWidgets.QApplication.instance()
     if not app:  # Create new instance if it doesn't exist
         app = QtWidgets.QApplication(sys.argv)
 
     ## set clf to the trained classifier to use it for decision maps
-    w = LCIP_GUI_GAN(clf=None, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+
+    w = LCIP_GUI_GAN(clf=clf, Pinv=proj.Pinv, X=X_train, X2d=X2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
     # w.showMaximized()
     w.resize(1700, 860)
     w.show()
@@ -99,7 +102,7 @@ def train_new_model():
 
 
 ## load saved model
-def load_saved(folder):
+def load_saved(folder, clf=None):
     Pinv = LCIP()
     data_dict = np.load(folder + '/data_dict.npz')
     
@@ -109,19 +112,40 @@ def load_saved(folder):
     X_train = torch.from_numpy(X_train).float()
 
     Pinv.load_model(folder, input_dim=X_train.shape[1])
+        
+    if clf:
+        ### train a classifier (for making decision maps)
+        print('Training the classifier')
+        clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(512, 256, 128))
+        dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
+        clf.fit(dataset, epochs=100)
 
-    # clf = NNClassifier(input_dim=X_train.shape[1], n_classes=np.unique(y_train).shape[0], layer_sizes=(1024, 512))
-    # dataset = torch.utils.data.TensorDataset(X_train.to(clf.device), torch.from_numpy(y_train).long().to(clf.device))
-    # clf.fit(dataset, epochs=100)
-    # print(clf.score(X_train, y_train))
     
     app = QtWidgets.QApplication.instance()
     if not app:  
         app = QtWidgets.QApplication(sys.argv)
     print('shape X:' , X_train.shape)
-    window = LCIP_GUI_GAN(clf=None, Pinv=Pinv, X=X_train, X2d=X_2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='./models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+
+    window = LCIP_GUI_GAN(clf=clf, Pinv=Pinv, X=X_train, X2d=X_2d, y=y_train, GRID=GRID, show3d=True, padding=0.1, data_shape=(512,512,3), G_path='./models/stylegan2-afhqv2-512x512.pkl', w_scaler=w_scaler, cmap='tab10')
+
+       
     window.resize(1700, 860)
     window.show()
     sys.exit(app.exec())
 
-load_saved('./models/wAFHQv2_paper')
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--load_paper', action='store_true', help='load the saved model from the paper')
+    parser.add_argument('-p', '--projection', type=str, help='Choose the projection method. The default is umap', choices=['umap', 'tsne' ], default='tsne')
+    parser.add_argument('-i', '--pinv', type=str, help='Choose the inverse projection method. The default is lcip', choices=['ilamp', 'nninv', 'rbf', 'lcip'], default='lcip')
+    parser.add_argument('-c', '--clf', action='store_true', help='Train a classifier for decision maps')
+    args = parser.parse_args()
+    print(args.load_paper)
+    if args.load_paper:
+        load_saved('./models/wAFHQv2_paper', clf=args.clf)
+    else:
+        train_new_model(args.projection, args.pinv, clf=args.clf)
+
+
+# load_saved('./models/wAFHQv2_paper')
