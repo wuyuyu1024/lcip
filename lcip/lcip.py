@@ -341,13 +341,18 @@ class LCIP:
         np.save(f'{path}/encoded.npy', self.encoded)
         print('model saved at: ', path)
 
-    def load_model(self, path, z_finder_method='rbf'):
-        self.model = joblib.load(f'{path}/model.pkl')
+    def load_model(self, path, input_dim, z_finder_method='rbf'):
+        self.model = AE(input_dim, hidden_dim=128, z_dim=self.z_dim, layers_e=self.layers_e, layers_d=self.layers_d, weight_y=self.weight_y).to(self.device)
+        self.model.load_state_dict(torch.load(f'{path}/model_state_dict.pth'))
         self.model.eval()
         self.model.to(self.device)
-        self.scaler = joblib.load(f'{path}/scaler2d.pkl')
-        self.x2d = np.load(f'{path}/X2d_scaled.npy')
-        self.encoded = np.load(f'{path}/encoded.npy')
+
+        self.scaler = MinMaxScaler()
+        data_dict = np.load(f'{path}/data_dict.npz')
+        X2d_unscaled = data_dict['X2d_unscaled']
+        X_train = data_dict['X_train']
+        self.x2d = self.scaler.fit_transform(X2d_unscaled)
+        self.encoded = self.encode(X_train)
         self.fit_zfinder(self.x2d, self.encoded, method=z_finder_method)
         print('model loaded from: ', path)
 
