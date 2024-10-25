@@ -12,14 +12,17 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--clf', action='store_true', help='Train a classifier for decision maps')
     parser.add_argument('-g', '--grid', type=int, help='Gri size (resolution) for decision maps. Default: 100.', default=100)
     args = parser.parse_args()
-    print(args.load_paper)
+    # print(args.load_paper)
+
     if not args.clf:
         clf = None
     else:
         clf = True
+
     if args.load_paper:
         print('Loading the saved model from the paper')
         load_saved_paper('./models/wAFHQv2_paper', clf=clf)
+        
     else:
         print(f'Training a new model on {args.dataset} dataset')
         match args.dataset:

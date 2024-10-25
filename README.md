@@ -100,19 +100,49 @@ Feel free to try other pretrained StyleGAN. -->
 
 ## Run the GUI
 
+### Basic
+
 To start the GUI with AFHQv2 dataset demo, run:
 ```
-python main_wafhq.py
+python run.py
 ```
 
 To start the GUI with MNIST dataset demo, run:
 ```
-python main_basic.py
+python run.py -d mnist
 ```
 
 This GUI is designed for our proposed controllable inverse projection method. You can control the inverse projection locally by dragging the sliders, and see the changes in real-time.
 
+### More functions
 This tool can also be used for general inverse projection method (e.g., [NNinv](https://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA19/paper.pdf), [iLAMP](https://ieeexplore.ieee.org/document/6400489), [RBF](https://www.sciencedirect.com/science/article/pii/S0097849315000230), [iMDS](http://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA24/paper.pdf)). However, users can only interact with the static inverse projection.
+
+
+<strong>Example</strong>: To start the GUI with `Fashion-MNIST` dataset with `UMAP ` as the projection and `NNinv` as the inverse projection method, run
+
+```
+python run.py -d fashionmnist -p umap -i nninv
+```
+
+<strong>Decision map example</strong>: To start the GUI with decision map on MNIST dataset, run:
+```
+python run.py -d mnist -c
+```
+
+Run `python run.py -h` for the detailed instructions.
+
+
+## Load the saved model used in the paper
+
+To reproduce the style transfer application on $w$ of AFHQv2 dataset, run
+```
+python run.py -l
+```
+
+Then, you can load the saved $z$ by click `load z` button in the top right corner of the GUI. Then select the file in directory:
+`./models/wAFHQv2_paper/z_paper_saved.npy`.
+
+Next you could click `Map content` drop box and select 'Distance to the initial surface' to see the difference. 
 
 <!-- You can run DragGAN Gradio demo as well, this is universal for both windows and linux:
 ```sh
