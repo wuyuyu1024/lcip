@@ -93,9 +93,14 @@ class LCIP_GUI_Basic(QWidget):
         #### data stuff, could be moved to a dict
         self.X = X
         if data_shape is None:
-            self.data_shape = X.shape[1:]
+            if len(X.shape) == 2:
+                self.data_shape = (1, 3)
+                # self.data_shape = X.shape[1:]
+            else:
+                self.data_shape = X.shape[1:]
         else:
             self.data_shape = data_shape
+        print('data shape:', self.data_shape)
 
         # self.side_size = int(np.sqrt(X.shape[1])) if int(np.sqrt(X.shape[1]))**2 == X.shape[1] else 3
         self.neighbor_finder = NearestNeighbors(n_neighbors=1, n_jobs=-1).fit(X)
@@ -1210,7 +1215,7 @@ class LCIP_GUI_Basic(QWidget):
         """
     
         if self.X.shape[1] == 3:
-            cur_real = self.X[index].reshape(1, 3)
+            cur_real = self.X[index].reshape(1, 3) * 255
         else:
             cur_real = self.X[index].reshape(self.data_shape)*255
             cur_real = np.flip(cur_real, axis=0)
@@ -1219,14 +1224,16 @@ class LCIP_GUI_Basic(QWidget):
     def update_real_for_index(self, index):
         self.data_ind = index
         print(f'Current target is index: {index}')
-        self.cache_target_z = self.encode(self.X[self.data_ind])
-        self.cache_z = self.current_z.copy()
         # self.update_2d_map()
         # if self.show3d:
         #     self.update_3d()
         self.selected_2dPonit.setData(self.X2d[index, 0].reshape(1,-1), self.X2d[index, 1].reshape(1, -1), symbol='o', size=15, brush=None, pen=pg.mkPen(color='r', width=1.5))
         cur_real = self.get_real_data(index)
+        # print('real data shape', cur_real.shape)
+        # print('real data:', cur_real)
         self.real_onclick.setImage(cur_real)
+        self.cache_target_z = self.encode(self.X[self.data_ind])
+        self.cache_z = self.current_z.copy()
         self.control_silder.setValue(0)
 
     def enter_index(self):
