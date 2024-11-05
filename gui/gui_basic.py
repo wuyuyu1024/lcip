@@ -113,7 +113,7 @@ class LCIP_GUI_Basic(QWidget):
             y = y / 9
         else:
             y = y / y.max()
-        self.ponit_color_mode = 'label'
+        self.point_color_mode = 'label'
         self.c_scatter = self.cmap(y)  
         self.max_dist = None   
         self.show_scatter_dist = False
@@ -361,7 +361,7 @@ class LCIP_GUI_Basic(QWidget):
     
     def get_distance(self, X_recon=None, GPU=False):   ### this is the most expensive part right now 0.16s for Fashion
         """
-        get the distance of data ponits from the ground truth to the current map
+        get the distance of data points from the ground truth to the current map
         """
         ## get the distance from the current point to the grid points
         ## and compute the ACC_M score 
@@ -476,9 +476,9 @@ class LCIP_GUI_Basic(QWidget):
         plot.setLimits(xMin=0-self.padding, xMax=1+self.padding, yMin=0-self.padding, yMax=1+self.padding)
 
         self.mouse_scatter = NonInteractiveScatterPlotItem()
-        self.selected_2dPonit = NonInteractiveScatterPlotItem()
+        self.selected_2dpoint = NonInteractiveScatterPlotItem()
         plot.addItem(self.mouse_scatter)
-        plot.addItem(self.selected_2dPonit)
+        plot.addItem(self.selected_2dpoint)
 
         self.radius_circle = plot.plot()
 
@@ -582,7 +582,7 @@ class LCIP_GUI_Basic(QWidget):
         row_map_content_layout.addWidget(label_map_content, 1)
         row_map_content_layout.addWidget(combobox_map, 2)
 
-        ### data ponit combo box
+        ### data point combo box
         label_data_point = QtWidgets.QLabel('Data point:')
         combobox_data_point = QtWidgets.QComboBox()
         combobox_data_point.addItems(['color label', 'color label | size distance','hide data points', 'color distace to the surface'])
@@ -593,7 +593,7 @@ class LCIP_GUI_Basic(QWidget):
         slider3 = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider3.setRange(1, 50)
         slider3.setValue(self.scatter_size_factor)
-        label3 = QtWidgets.QLabel('data ponit size')
+        label3 = QtWidgets.QLabel('data point size')
 
         block_display = QtWidgets.QWidget()
         block_display_layout = QtWidgets.QVBoxLayout()
@@ -621,7 +621,7 @@ class LCIP_GUI_Basic(QWidget):
         
         #### BLOCK: INTERACTION SETTINGS``
         # check box########################################################
-        checkbox1 = QtWidgets.QCheckBox('Adjust z by clicking anchors (data ponits)')
+        checkbox1 = QtWidgets.QCheckBox('Adjust z by clicking anchors (data points)')
         # set status
         checkbox1.toggled.connect(self.shap_status)
         self.shap = False
@@ -981,13 +981,13 @@ class LCIP_GUI_Basic(QWidget):
                 print('showing scatter plot')
                 self.show_scatters = True
                 self.show_scatter_dist = False
-                self.ponit_color_mode = 'label'
+                self.point_color_mode = 'label'
                 sizes = self.process_scatter_size()
                 self.scatter2d.setData(self.X2d[:,0], self.X2d[:,1], symbol='o', size=sizes, brush=self.c_scatter*255)
             case 1: # show data points with distance
                 self.show_scatters = True
                 self.show_scatter_dist = True
-                self.ponit_color_mode = 'label'
+                self.point_color_mode = 'label'
                 print('showing scatters distance changed to:', self.show_scatter_dist)
                 self.update_2d_map()
 
@@ -998,7 +998,7 @@ class LCIP_GUI_Basic(QWidget):
             case 3: # show data points with color distance
                 self.show_scatters = True
                 self.show_scatter_dist = False
-                self.ponit_color_mode = 'distance'
+                self.point_color_mode = 'distance'
                 self.distances = self.get_distance( GPU=False).astype(np.float16)
                 self.color_dist = cm.viridis(self.distances/np.max(self.distances))
                 sizes = self.process_scatter_size()
@@ -1096,7 +1096,7 @@ class LCIP_GUI_Basic(QWidget):
             sizes = self.raw_data_sizes * self.scatter_size_factor # 0.2
         else:
             sizes = np.ones(self.X2d.shape[0]) * self.scatter_size_factor * 0.5
-        match self.ponit_color_mode:
+        match self.point_color_mode:
             case 'label':
                 self.scatter2d.setData(self.X2d[:,0], self.X2d[:,1], symbol='o', size=sizes, brush=self.c_scatter*255)
             case 'distance':
@@ -1168,7 +1168,7 @@ class LCIP_GUI_Basic(QWidget):
                 print(f'set map2d time: {time.time() - time0}')
 
         if self.show_scatters or self.update_score:
-            if self.show_scatter_dist or self.update_score or self.ponit_color_mode=='distance':
+            if self.show_scatter_dist or self.update_score or self.point_color_mode=='distance':
                 ## place holder
                 ## compute X_reco
                 X_rocon = self.compute_X_recon()
@@ -1179,7 +1179,7 @@ class LCIP_GUI_Basic(QWidget):
             else:
                 sizes = self.process_scatter_size()
             
-            match self.ponit_color_mode:
+            match self.point_color_mode:
                 case 'label':
                     self.scatter2d.setData(self.X2d[:,0], self.X2d[:,1], symbol='o', size=sizes, brush=self.c_scatter*255)
                 case 'distance':
@@ -1227,7 +1227,7 @@ class LCIP_GUI_Basic(QWidget):
         # self.update_2d_map()
         # if self.show3d:
         #     self.update_3d()
-        self.selected_2dPonit.setData(self.X2d[index, 0].reshape(1,-1), self.X2d[index, 1].reshape(1, -1), symbol='o', size=15, brush=None, pen=pg.mkPen(color='r', width=1.5))
+        self.selected_2dpoint.setData(self.X2d[index, 0].reshape(1,-1), self.X2d[index, 1].reshape(1, -1), symbol='o', size=15, brush=None, pen=pg.mkPen(color='r', width=1.5))
         cur_real = self.get_real_data(index)
         # print('real data shape', cur_real.shape)
         # print('real data:', cur_real)
