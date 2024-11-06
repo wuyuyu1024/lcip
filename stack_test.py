@@ -3,6 +3,7 @@ import numpy as np
 import sys
 
 sys.path.append('../InverseProjections/')
+from gui.gui_gan import MinMaxScaler_T
 
 from sklearn.preprocessing import MinMaxScaler
 
@@ -12,6 +13,7 @@ from umap import UMAP
 from classifiers import NNClassifier
 
 from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
 
 
 import torch as T
@@ -23,63 +25,64 @@ from tqdm import tqdm
 
 
 
-# # MNIST
-# (X, y), (_, _) = mnist.load_data()
-# X = X.reshape(-1, 28*28)
-# X = X.astype('float32') / 255.
-X = np.load('./datasets/mnist/X.npy').astype('float32')
-y = np.load('./datasets/mnist/y.npy')
-# train test split
-X_MNIST, _, y_MNIST, _ = train_test_split(X, y, train_size=5000, test_size=2000, random_state=420)
-scaler = MinMaxScaler()
-X_MNIST = scaler.fit_transform(X_MNIST)
+# # # MNIST
+# # (X, y), (_, _) = mnist.load_data()
+# # X = X.reshape(-1, 28*28)
+# # X = X.astype('float32') / 255.
+# X = np.load('./datasets/mnist/X.npy').astype('float32')
+# y = np.load('./datasets/mnist/y.npy')
+# # train test split
+# X_MNIST, _, y_MNIST, _ = train_test_split(X, y, train_size=5000, test_size=2000, random_state=420)
+# scaler = MinMaxScaler()
+# X_MNIST = scaler.fit_transform(X_MNIST)
 
-# # fashion MNIST
-# (X, y), (_, _) = fashion_mnist.load_data()
-# X = X.reshape(-1, 28*28)
-# X = X.astype('float32') / 255.
-X = np.load('./datasets/fashionmnist/X.npy').astype('float32')
-y = np.load('./datasets/fashionmnist/y.npy')
-# train test split
-X_fashion, _, y_fashion, _ = train_test_split(X, y, train_size=5000, test_size=2000, random_state=420)
-scaler = MinMaxScaler()
-X_fashion = scaler.fit_transform(X_fashion)
+# # # fashion MNIST
+# # (X, y), (_, _) = fashion_mnist.load_data()
+# # X = X.reshape(-1, 28*28)
+# # X = X.astype('float32') / 255.
+# X = np.load('./datasets/fashionmnist/X.npy').astype('float32')
+# y = np.load('./datasets/fashionmnist/y.npy')
+# # train test split
+# X_fashion, _, y_fashion, _ = train_test_split(X, y, train_size=5000, test_size=2000, random_state=420)
+# scaler = MinMaxScaler()
+# X_fashion = scaler.fit_transform(X_fashion)
 
-## HAR 
-X_har_train = np.load('./datasets/har/X.npy').astype('float32')
-# X_har_test = np.load('../sdbm/data/har/X_test.npy').astype('float32')
-# X_har = np.concatenate([X_har_train, X_har_test], axis=0)
-# X_har = X_har_train
-y_har_train = np.load('./datasets/har/y.npy')
-# y_har_test = np.load('../sdbm/data/har/y_test.npy')
-# y_har = np.concatenate([y_har_train, y_har_test], axis=0)
-# y_har = y_har_train
-X_har_train, X_har_test, y_har_train, y_har_test = train_test_split(X_har_train, y_har_train, train_size=5000, test_size=2000, random_state=420)
+# ## HAR 
+# X_har_train = np.load('./datasets/har/X.npy').astype('float32')
+# # X_har_test = np.load('../sdbm/data/har/X_test.npy').astype('float32')
+# # X_har = np.concatenate([X_har_train, X_har_test], axis=0)
+# # X_har = X_har_train
+# y_har_train = np.load('./datasets/har/y.npy')
+# # y_har_test = np.load('../sdbm/data/har/y_test.npy')
+# # y_har = np.concatenate([y_har_train, y_har_test], axis=0)
+# # y_har = y_har_train
+# X_har_train, X_har_test, y_har_train, y_har_test = train_test_split(X_har_train, y_har_train, train_size=5000, test_size=2000, random_state=420)
 
-w = np.load('./datasets/w_afhqv2/X.npy')
+w = np.load('./datasets/w_afhqv2/w_afhqv2.npy')
 y = np.zeros(w.shape[0])
 y[5065 : -4593] = 1
 y[-4593: ] = 2
 
-w_scaler = MinMaxScaler()
+w = T.from_numpy(w).float()
+w_scaler = MinMaxScaler_T()
 w = w_scaler.fit_transform(w)
 # split the data
-w_train, w_test, y_train, y_test = train_test_split(w, y, train_size=5000, test_size=2000, random_state=420)
+w_train, w_test, y_train, y_test = train_test_split(w, y, train_size=5000,  random_state=42)
 
 X_dict = {
     'AFHQv2': (w_train, y_train),
-    'HAR': (X_har_train, y_har_train),
+    # 'HAR': (X_har_train, y_har_train),
     
-    # # 'BLOB': X_blob,
-    'MNIST': (X_MNIST, y_MNIST),
+    # # # 'BLOB': X_blob,
+    # 'MNIST': (X_MNIST, y_MNIST),
     
-    'FashionMNIST': (X_fashion, y_fashion),
+    # 'FashionMNIST': (X_fashion, y_fashion),
         
         }
 
 P_dict = {
-    'UMAP': UMAP(n_components=2, random_state=42),
-            'tSNE': TSNE(n_components=2, random_state=420, n_jobs=-1),
+    # 'UMAP': UMAP(n_components=2, random_state=42),
+            'tSNE': TSNE(n_components=2, random_state=420, n_jobs=8),
             }
 
 Pinv_name = "LCIP"
@@ -171,16 +174,18 @@ def get_results_stacked(lcip, X, X2d, n_surf=50, batch_size=100, padding=0.05, g
 
 for dataset_name, (X, y) in X_dict.items():
     clf = NNClassifier(input_dim=X.shape[1], n_classes=np.unique(y).shape[0], layer_sizes=(512, 256, 128))
-    dataset = T.utils.data.TensorDataset(T.from_numpy(X).to(clf.device), T.from_numpy(y).long().to(clf.device))
+    dataset = T.utils.data.TensorDataset(X.to(clf.device), T.from_numpy(y).long().to(clf.device))
     clf.fit(dataset, epochs=150)
     print("training set acc: ", clf.score(X, y))
     ## save the classifier
-    T.save(clf.state_dict(), f'./results/{dataset_name}_clf.pth')
+    # T.save(clf.state_dict(), f'./results/{dataset_name}_clf.pth')
 
     for P_name, P in P_dict.items():
 
 
         X2d = P.fit_transform(X)
+        plt.scatter(X2d[:, 0], X2d[:, 1], c=y, cmap='tab10')
+        plt.show()
 
 
         X_train, X2d_train = X, X2d
