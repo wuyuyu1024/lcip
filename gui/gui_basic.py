@@ -758,7 +758,7 @@ class LCIP_GUI_Basic(QWidget):
         e1.setMaxLength(4)
 
         e1.editingFinished.connect(self.enter_index)
-        e1_label = QtWidgets.QLabel('Mannual index:')
+        e1_label = QtWidgets.QLabel('Manual index:')
         save_button = QtWidgets.QPushButton('Undo change')
         save_button.clicked.connect(self.undo_changes)
         block_save = QtWidgets.QWidget()
