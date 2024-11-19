@@ -645,50 +645,70 @@ class LCIP_GUI_Basic(QWidget):
         slider1.setTickInterval(1)  # Represents the interval 0.01
         label1 = QtWidgets.QLabel('factor')
 
-        # Slider2
+        # Slider for radius (σ)
         slider2 = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        slider2.setRange(10, 300)  # Representing 0 to 0.5 with a precision of 0.01
-        slider2.setValue(self.shape_radius*1000)  # Represents the value 0.25
+        slider2.setRange(10, 310)  # Representing 0 to 0.5 with a precision of 0.01
+        slider2.setValue(self.shape_radius * 1000)  # Represents the value 0.25
         slider2.setTickInterval(1)  # Represents the interval 0.01
         label2 = QtWidgets.QLabel('radius (&#963;)')  # Use the HTML code for sigma
         label2.setTextFormat(QtCore.Qt.RichText)  # Enable rich text rendering
         label2.setText('<html><body><span style="font-size:12pt;">radius (&#963;)</span></body></html>')
 
+        # Tick labels for slider2
+        tick_labels = QtWidgets.QHBoxLayout()
+        tick_positions = [10, 110, 210, 310]  # Define exact tick positions
+        slider2_width = 300  # Ensure this matches the slider's width
 
-        # Slider control how far to go with delta z
+        for i, value in enumerate(tick_positions):
+            tick_label = QtWidgets.QLabel(f'{value / 1000:.2f}')  # Format tick label
+            tick_label.setAlignment(QtCore.Qt.AlignCenter)  # Center-align labels
+            tick_labels.addWidget(tick_label)
+            if i < len(tick_positions) - 1:  # Add spacers between tick labels
+                spacer = QtWidgets.QSpacerItem(slider2_width // (len(tick_positions) - 1), 0)
+                tick_labels.addSpacerItem(spacer)
+
+        # Slider control for delta z (α)
         slider_control = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider_control.setRange(-120, 120)  # Representing -1 to 1 with a precision of 0.01
         slider_control.setValue(0)  # Represents the value 0
         slider_control.setTickInterval(1)  # Represents the interval 0.05
-        # Set the QLabel text to display alpha using HTML
-        label_control = QtWidgets.QLabel(r'$\alpha$')
+        label_control = QtWidgets.QLabel(r'$\alpha$')  # Display alpha using HTML
         label_control.setTextFormat(QtCore.Qt.RichText)  # Enable rich text rendering
-        label_control.setText('<html><body><span style="font-size:12pt;">&#945;</span></body></html>')  # Use the HTML code for alpha
+        label_control.setText('<html><body><span style="font-size:12pt;">&#945;</span></body></html>')  # Use HTML code for alpha
+        self.control_slider = slider_control
 
-        self.control_silder = slider_control
+        # Tick labels for slider_control
+        tick_labels_control = QtWidgets.QHBoxLayout()
+        control_positions = [-120, -60, 0, 60, 120]  # Define exact tick positions
+        slider_control_width = 300  # Ensure this matches the slider's width
 
+        for i, value in enumerate(control_positions):
+            tick_label = QtWidgets.QLabel(f'{value / 100:.1f}')
+            tick_label.setAlignment(QtCore.Qt.AlignCenter)
+            tick_labels_control.addWidget(tick_label)
+            if i < len(control_positions) - 1:  # Add spacers between tick labels
+                spacer = QtWidgets.QSpacerItem(slider_control_width // (len(control_positions) - 1), 0)
+                tick_labels_control.addSpacerItem(spacer)
 
-
-        # set layout for slider and label
-
+        # Layout for sliders and tick labels
         s0_layout = QtWidgets.QVBoxLayout()
-        # s0_layout.addWidget(slider0)
-        # s0_layout.addWidget(slider1)
         s0_layout.addWidget(slider2)
+        s0_layout.addLayout(tick_labels)
         s0_layout.addWidget(slider_control)
+        s0_layout.addLayout(tick_labels_control)
 
- 
+        # Layout for labels
         s1_layout = QtWidgets.QVBoxLayout()
-        # s1_layout.addWidget(label0)
-        # s1_layout.addWidget(label1)
         s1_layout.addWidget(label2)
         s1_layout.addWidget(label_control)
+
+        
 
 
         # SL = QtWidgets.QWidget()
         SL_layout = QtWidgets.QHBoxLayout()
-        SL_layout.addLayout(s1_layout)
-        SL_layout.addLayout(s0_layout)
+        SL_layout.addLayout(s1_layout, 2)
+        SL_layout.addLayout(s0_layout, 8)
 
 
         # sliders connect 

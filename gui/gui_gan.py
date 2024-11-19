@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from gui.gui_basic import LCIP_GUI_Basic
 import pickle
-
+import matplotlib.pyplot as plt
 import os
 
 
@@ -185,11 +185,7 @@ class LCIP_GUI_GAN(LCIP_GUI_Basic):
             path = f'./cache/mannual_save/{self.mouse_pos[0][0]:.4f}_{self.mouse_pos[0][1]:.4f}_R_{self.shape_radius}'
             ## save x_t
             np.save(f'{path}/x_t_{self.data_ind}', self.X[self.data_ind].cpu().numpy())
-            ## save G(x_t)
-            img = self.gen_img_from_w(self.X[self.data_ind].reshape(1,512).to(self.device))
-            img = img.squeeze()
-            ## save image
-            plt.imsave(f'{path}/G_x_t_{self.data_ind}.png', img)
+            
             ## save q_0
             cur_z = self.get_z(self.mouse_pos)
             q0 = self.get_inverse(self.mouse_pos, cur_z)
@@ -198,7 +194,11 @@ class LCIP_GUI_GAN(LCIP_GUI_Basic):
             img_inv = self.gen_img_from_w(q0)
             img_inv = img_inv.squeeze()
             plt.imsave(f'{path}/G(q0)_{self.control_silder.value()/100}.png', img_inv)
-            
+            ## save G(x_t)
+            img = self.gen_img_from_w(self.X[self.data_ind].reshape(1,512).to(self.device))
+            img = img.squeeze()
+            ## save image
+            plt.imsave(f'{path}/G_x_t_{self.data_ind}.png', img)
     
     # def update_2d_map(self):
     #     match self.map_content:
