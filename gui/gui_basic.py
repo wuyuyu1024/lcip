@@ -896,7 +896,7 @@ class LCIP_GUI_Basic(QWidget):
         self.current_z = self.initial_z.copy()
         self.update_2d_map()
         self.update_inverse_window(self.mouse_pos[0])
-        self.control_silder.setValue(0)
+        self.control_slider.setValue(0)
         self.cache_source_z = self.get_z(self.mouse_pos)
         if self.show3d:
             self.update_3d()
@@ -1128,7 +1128,7 @@ class LCIP_GUI_Basic(QWidget):
     def slider_control_changed(self):
         self.plot_circle(center=self.mouse_pos[0], radius=self.shape_radius)
         ## do the calculation only when certain time has passed
-        value = self.control_silder.value()
+        value = self.control_slider.value()
         # time_now = time.time()
         # time_diff = time_now - self.cache_time
         # print('time', time_now)
@@ -1254,7 +1254,7 @@ class LCIP_GUI_Basic(QWidget):
         self.real_onclick.setImage(cur_real)
         self.cache_target_z = self.encode(self.X[self.data_ind])
         self.cache_z = self.current_z.copy()
-        self.control_silder.setValue(0)
+        self.control_slider.setValue(0)
 
     def enter_index(self):
         index = int(self.sender().text())
@@ -1289,7 +1289,7 @@ class LCIP_GUI_Basic(QWidget):
         self.current_z = self.cache_z.copy() ## careful with the .copy()
         self.update_2d_map()
         self.update_inverse_window(self.mouse_pos[0])
-        self.control_silder.setValue(0)
+        self.control_slider.setValue(0)
         self.cache_source_z = self.get_z(self.mouse_pos)
         print('undo changes')
 
@@ -1314,7 +1314,7 @@ class LCIP_GUI_Basic(QWidget):
             # print('released on image', event)
             # print('release!!!:', self.mouse_pressed)
             self.mouse_pressed = False
-            self.control_silder.setValue(0)
+            self.control_slider.setValue(0)
             self.cache_filter = self.gaussian_filter(self.mouse_pos[0], sigma=self.shape_radius)
             self.cache_source_z = self.get_z(self.mouse_pos)
             self.cache_z = self.current_z.copy()  ## save directly || avoid new source but old surface (z)
