@@ -1,7 +1,6 @@
 <p align="center">
 
-  <h1 align="center">How to make dogs smile: Controlling inverse
-projections by maneuvering the lost information</h1>
+  <h1 align="center">LCIP: Loss-Controlled Inverse Projection of High-Dimensional Data</h1>
   <p align="center">
     <a href="https://yuwang-vis.github.io/"><strong>Yu Wang</strong></a>
     ·
