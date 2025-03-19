@@ -3,15 +3,17 @@
   <h1 align="center">How to make dogs smile: Controlling inverse
 projections by maneuvering the lost information</h1>
   <p align="center">
-    <a href="https://wuyuyu1024.github.io/"><strong>Yu Wang</strong></a>
+    <a href="https://yuwang-vis.github.io/"><strong>Yu Wang</strong></a>
     ·
     <a href="https://frederikdennig.com/"><strong>Frederik L. Dennig</strong></a>
     ·
+    <a href="https://mbehrisch.github.io/"><strong>Michael Behrisch</strong></a>
+    ·
     <a href="https://webspace.science.uu.nl/~telea001/"><strong>Alexandru Telea</strong></a>
-    (To befinalized)
+
 
   </p>
-  <h2 align="center"> Placeholder for journal or conference</h2>
+  <h2 align="center"> Submitted to <em>IEEE TVCG</em></h2>
   <div align="center">
     <img src="LCIP.gif", width="750">
   </div>
@@ -167,8 +169,8 @@ However, most of this project are available under a separate license terms: all 
 ```bibtex
 @misc{softwareLCIP,
 	title = {{LCIP} implementation source code},
-	url = {will release after accepted},
-	author = {{The Authors}},
-	year = {2024},
+	url = {https://github.com/wuyuyu1024/lcip/},
+	author = {Wang, Yu and Dennig, Frederik and Behrisch, Michael and Telea, Alexandru},
+	year = {2025},
 }
 ```
