@@ -103,7 +103,7 @@ def train_new_model_basic(dataset_name='mnist', P_name='tsne', Pinv_name='lcip',
             X_train, _, y_train, _ = train_test_split(X, y, train_size=3000, test_size=2000, random_state=420)
 
         case 'blobs':
-            X_train, y_train = make_blobs(n_samples=500, centers=6, n_features=3, random_state=0, cluster_std=1.2)
+            X_train, y_train = make_blobs(n_samples=500, centers=6, n_features=3, random_state=666, cluster_std=1.8)
     
     X_train = minmax_scale(X_train).astype('float32')
 

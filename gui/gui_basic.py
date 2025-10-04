@@ -201,7 +201,11 @@ class LCIP_GUI_Basic(QWidget):
         if not self.show_scatter_dist:
             return np.ones(self.X2d.shape[0]) * self.scatter_size_factor * 0.5
         
-        self.distances = self.get_distance(X_recon=X_recon, GPU=False).astype(np.float16)
+        assert X_recon is not None, "X_recon should be provided when show_scatter_dist is True"
+        
+        self.distances = self.get_distance(X_recon=X_recon, GPU=False).astype(np.float32)
+        ## assert sizes don't have nan
+        assert not np.any(np.isnan(self.distances)), "Distances array contains NaN values."
         time0 = time.time()
         if self.scatter_size_scaler is None:
             self.scatter_size_scaler = MinMaxScaler()
@@ -209,7 +213,9 @@ class LCIP_GUI_Basic(QWidget):
         else:
             raw_data_sizes = self.scatter_size_scaler.transform(self.distances.reshape(-1,1)) + 0.1
     
-        
+        ## assert raw_data_sizes don't have nan
+        assert not np.any(np.isnan(raw_data_sizes)), "Raw sizes array contains NaN values."
+
         self.raw_data_sizes = raw_data_sizes.reshape(-1) + 0.1
         sizes = self.scatter_size_factor *  self.raw_data_sizes
         print(f'process_scatter_size time: {time.time() - time0}')
@@ -239,7 +245,7 @@ class LCIP_GUI_Basic(QWidget):
             res = torch.tensor(res, dtype=torch.float32, device=self.device)
         return res
     
-    def get_prob_map(self, inversed_data, proba=True, epsilo=0.8):
+    def get_prob_map(self, inversed_data, proba=True, epsilo=0.65):
         if self.clf is None:
             return np.ones((self.GRID, self.GRID, 4)) * 128
         ########################################
@@ -1199,6 +1205,9 @@ class LCIP_GUI_Basic(QWidget):
             else:
                 sizes = self.process_scatter_size()
             
+            ## assert self.c_scatter doesn't have nan
+            assert not np.any(np.isnan(self.c_scatter)), "Color array contains NaN values."
+
             match self.point_color_mode:
                 case 'label':
                     self.scatter2d.setData(self.X2d[:,0], self.X2d[:,1], symbol='o', size=sizes, brush=self.c_scatter*255)
