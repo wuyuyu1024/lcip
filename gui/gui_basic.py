@@ -381,9 +381,22 @@ class LCIP_GUI_Basic(QWidget):
         X = torch.tensor(self.X, dtype=torch.float16, device=self.device)
         X_recon = X_recon.type(torch.float16)
 
-        X_squared = torch.sum(X ** 2, dim=1, keepdim=True)
-        recon_squared = torch.sum(X_recon ** 2, dim=1).unsqueeze(1)
-        distances = torch.sqrt(X_squared + recon_squared - 2 * torch.matmul(X, X_recon.mT))
+        # X_squared = torch.sum(X ** 2, dim=1, keepdim=True)
+        # recon_squared = torch.sum(X_recon ** 2, dim=1).unsqueeze(1)
+        # distances = torch.sqrt(X_squared + recon_squared - 2 * torch.matmul(X, X_recon.mT))
+
+        # Efficient distance computation using broadcasting
+        X_squared = torch.sum(X ** 2, dim=1, keepdim=True)           # shape: (N, 1)
+        recon_squared = torch.sum(X_recon ** 2, dim=1).unsqueeze(0)  # shape: (1, N)
+        
+        # Compute pairwise squared distances (N x N matrix)
+        distances_squared = X_squared + recon_squared - 2 * torch.matmul(X, X_recon.T)
+        
+        # Clamp to avoid negative values due to precision errors
+        distances_squared = torch.clamp(distances_squared, min=0.0)
+        
+        # Take sqrt to get Euclidean distances
+        distances = torch.sqrt(distances_squared)
 
         # Extract diagonal for point-wise distances
         distances = distances.diag()
@@ -516,7 +529,7 @@ class LCIP_GUI_Basic(QWidget):
     def compute_3d_map(self, z=None):
         # #####
         label_noProb = self.map_color.copy()
-        label_noProb[:, :, 3] = 0.7
+        label_noProb[:, :, 3] = 1
         return self.cur_Iinv.cpu().numpy(), label_noProb
     
     def init_widget_3d(self):
@@ -551,8 +564,19 @@ class LCIP_GUI_Basic(QWidget):
         axis = scene.visuals.XYZAxis(parent=view.scene)
         # # Add a colored 3D scatter plot
         scatter = scene.visuals.Markers()
-        scatter.set_data(data3d, edge_color='w', face_color=color_data, size=9)
+        scatter.set_data(data3d, edge_color=None, face_color=color_data, size=9)
         view.add(scatter)
+        self.scatter3d = scatter
+
+        selected_marker = scene.visuals.Markers()
+        selected_marker.set_data(np.empty((0, 3), dtype=np.float32), face_color=(1.0, 0.0, 0.0, 1.0), edge_color=(1.0, 1.0, 1.0, 1.0), size=15)
+        view.add(selected_marker)
+        self.selected_3dpoint = selected_marker
+
+        source_marker = scene.visuals.Markers()
+        source_marker.set_data(np.empty((0, 3), dtype=np.float32), symbol='+', size=20, face_color=(1.0, 1.0, 1.0, 1.0), edge_color=None)
+        view.add(source_marker)
+        self.source_3dpoint = source_marker
 
         ## connect to keyboard
         canvas.events.key_press.connect(self.vispy_key_press)
@@ -1237,6 +1261,13 @@ class LCIP_GUI_Basic(QWidget):
         self.surface3d.set_data(X3D_inv[:,0].reshape(self.GRID,self.GRID), X3D_inv[:,1].reshape(self.GRID, self.GRID), X3D_inv[:,2].reshape(self.GRID, self.GRID))
         self.surface3d.mesh_data.set_vertex_colors(color_surf.reshape(-1, 4))
         self.win2.update()
+
+    def highlight_target_in_3d(self, index):
+        if not self.show3d or not hasattr(self, 'selected_3dpoint'):
+            return
+        target_pos = self.X[index, :3].reshape(1, 3)
+        self.selected_3dpoint.set_data(target_pos, face_color=(1.0, 1.0, 1.0, 1.0), edge_color=(1.0, 1.0, 1.0, 1.0), size=15)
+        self.win2.update()
     
     def get_real_data(self, index):
         """
@@ -1257,6 +1288,8 @@ class LCIP_GUI_Basic(QWidget):
         # if self.show3d:
         #     self.update_3d()
         self.selected_2dpoint.setData(self.X2d[index, 0].reshape(1,-1), self.X2d[index, 1].reshape(1, -1), symbol='o', size=15, brush=None, pen=pg.mkPen(color='r', width=1.5))
+        if self.show3d:
+            self.highlight_target_in_3d(index)
         cur_real = self.get_real_data(index)
         # print('real data shape', cur_real.shape)
         # print('real data:', cur_real)
@@ -1387,6 +1420,10 @@ class LCIP_GUI_Basic(QWidget):
         # reshape to square 
         if self.show3d:
             cur_inv = cur_inv.reshape(1, 3)
+            if hasattr(self, 'source_3dpoint'):
+                self.source_3dpoint.set_data(cur_inv, symbol='+', size=20, face_color=(1.0, 1.0, 1.0, 1.0), edge_color=None)
+                if hasattr(self, 'win2'):
+                    self.win2.update()
         else:
             cur_inv = cur_inv.reshape(self.data_shape)*255
             cur_inv = np.flip(cur_inv, axis=0)
