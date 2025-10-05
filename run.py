@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     if args.load_paper:
         print('Loading the saved model from the paper')
-        load_saved_paper('./models/wAFHQv2_paper', clf=clf)
+        load_saved_paper('./models/wAFHQv2_paper', clf=clf, GRID=args.grid)
         
     else:
         print(f'Training a new model on {args.dataset} dataset')
