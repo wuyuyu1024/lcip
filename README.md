@@ -12,7 +12,7 @@
 
 
   </p>
-  <h2 align="center"> Submitted to <em>IEEE TVCG</em></h2>
+  <h3 align="center"><a href="https://doi.org/10.48550/arXiv.2602.11141"> arXiv:2602.11141 </a></h3>
   <div align="center">
     <img src="LCIP.gif", width="750">
   </div>
