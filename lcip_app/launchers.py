@@ -13,7 +13,7 @@ def train_new_model_basic(
 ) -> int:
     from lcip_app.datasets import load_basic_dataset
     from lcip_app.factories import fit_projection_model, train_classifier
-    from lcip_app.runtime import show_window
+    from lcip_app.runtime import ensure_qapplication, show_window
 
     LCIP_GUI_Basic = import_basic_gui()
     dataset = load_basic_dataset(dataset_name)
@@ -25,6 +25,7 @@ def train_new_model_basic(
         lcip_beta=0.1,
     )
 
+    ensure_qapplication()
     window = LCIP_GUI_Basic(
         clf=classifier,
         Pinv=trained_projection.inverse_projection,
@@ -48,7 +49,7 @@ def train_new_model_gan(
 ) -> int:
     from lcip_app.datasets import load_gan_dataset
     from lcip_app.factories import fit_projection_model, train_classifier
-    from lcip_app.runtime import show_window
+    from lcip_app.runtime import ensure_qapplication, show_window
 
     LCIP_GUI_GAN = import_gan_gui()
     dataset = load_gan_dataset()
@@ -60,6 +61,7 @@ def train_new_model_gan(
         lcip_beta=0.01,
     )
 
+    ensure_qapplication()
     window = LCIP_GUI_GAN(
         clf=classifier,
         Pinv=trained_projection.inverse_projection,
@@ -84,7 +86,7 @@ def load_saved_paper(folder: str | Path = DEFAULT_SAVED_MODEL_DIR, clf=None, GRI
     from lcip import LCIP
     from lcip_app.datasets import load_gan_dataset
     from lcip_app.factories import train_classifier
-    from lcip_app.runtime import show_window
+    from lcip_app.runtime import ensure_qapplication, show_window
 
     LCIP_GUI_GAN = import_gan_gui()
     folder_path = Path(folder)
@@ -99,6 +101,7 @@ def load_saved_paper(folder: str | Path = DEFAULT_SAVED_MODEL_DIR, clf=None, GRI
     inverse_projection.load_model(str(folder_path), input_dim=train_features.shape[1])
     classifier = train_classifier(train_features, train_labels) if clf else None
 
+    ensure_qapplication()
     window = LCIP_GUI_GAN(
         clf=classifier,
         Pinv=inverse_projection,
