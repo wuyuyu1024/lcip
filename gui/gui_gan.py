@@ -5,72 +5,10 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import numpy as np
 import torch
 from gui.gui_basic import LCIP_GUI_Basic
+from lcip_app.scalers import MinMaxScaler_T
 import pickle
 import matplotlib.pyplot as plt
 import os
-
-
-
-
-class MinMaxScaler_T(object):
-    """MinMax Scaler
-
-    Transforms each channel to the range [a, b].
-
-    Parameters
-    ----------
-    feature_range : tuple
-        Desired range of transformed data.
-    """
-
-    def __init__(self, feature_range=[0, 1]):
-        self.feature_range = feature_range
-
-    def fit(self, tensor):
-        """Fit features
-
-        Returns
-        -------
-        tensor
-            A tensor with scaled features using requested preprocessor.
-        """
-        self.min = torch.tensor(tensor.min(dim=0)[0])
-        self.max = torch.tensor(tensor.max(dim=0)[0])
-        return self
-
-        
-    def fit_transform(self, tensor):
-        """Fit and transform features"""
-        self.fit(tensor)
-        return self.transform(tensor)
-    
-    def transform(self, tensor):
-        """Transform features
-
-        Returns
-        -------
-        tensor 
-            A tensor with scaled features using requested preprocessor.
-        """
-        with torch.no_grad():
-            min = self.min.to(tensor.device)
-            max = self.max.to(tensor.device)
-            return (tensor - min) / (max - min)
-        
-    def inverse_transform(self, tensor):
-        """Inverse transform features
-
-        Returns
-        -------
-        tensor 
-            A tensor with scaled features using requested preprocessor.
-        """
-        with torch.no_grad():
-            max = self.max.to(tensor.device)
-            min = self.min.to(tensor.device)
-            return tensor * (max - min) + min
-    
-
 
 class LCIP_GUI_GAN(LCIP_GUI_Basic):
 
