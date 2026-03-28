@@ -71,6 +71,14 @@ If you are using windows, you can run:
 <li> TODO: download the pre-trained LCIP model with AFHQv2 dataset used in the paper. (Optional)
 </ol>
 
+## Run tests
+
+Use `pytest` for the test suite:
+
+```sh
+uv run pytest
+```
+
 <!-- ## Run Gradio visualizer in Docker 
 
 Provided docker image is based on NGC PyTorch repository. To quickly try out visualizer in Docker, run the following:  
