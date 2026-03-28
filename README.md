@@ -44,15 +44,14 @@
 Make sure you have CUDA graphic card, with CUDA version >= 12.1.
 <!-- please follow the requirements of [NVlabs/stylegan3](https://github.com/NVlabs/stylegan3#requirements).   -->
 The code was tested with Python >= 3.10, < 3.12.
+On Linux, the Qt GUI also requires native system libraries. On Arch, install `libxkbcommon` before launching the app.
 The installation steps involve the following commands:
 
 <ol>
-<li>Create a new python virtual environment and activate it.
+<li>Install <code>uv</code> and sync the project environment:
 
-<li>Install the requirements:
-
-```
-pip install -r requirements.txt
+```sh
+uv sync --python 3.11
 ```
 
 <li>Then run the script to clone stylanGAN2 repo, download the pre-trained models, and download the datasets.
@@ -105,12 +104,12 @@ Feel free to try other pretrained StyleGAN. -->
 
 To start the GUI with AFHQv2 dataset demo, run:
 ```
-python run.py
+uv run python run.py
 ```
 
 To start the GUI with MNIST dataset demo, run:
 ```
-python run.py -d mnist
+uv run python run.py -d mnist
 ```
 
 This GUI is designed for our proposed controllable inverse projection method. You can control the inverse projection locally by dragging the sliders, and see the changes in real-time.
@@ -122,22 +121,22 @@ This tool can also be used for general inverse projection method (e.g., [NNinv](
 <strong>Example</strong>: To start the GUI with `Fashion-MNIST` dataset with `UMAP ` as the projection and `NNinv` as the inverse projection method, run
 
 ```
-python run.py -d fashionmnist -p umap -i nninv
+uv run python run.py -d fashionmnist -p umap -i nninv
 ```
 
 <strong>Decision map example</strong>: To start the GUI with decision map on MNIST dataset, run:
 ```
-python run.py -d mnist -c
+uv run python run.py -d mnist -c
 ```
 
-Run `python run.py -h` for the detailed instructions.
+Run `uv run python run.py -h` for the detailed instructions.
 
 
 ## Load the saved model used in the paper
 
 To reproduce the style transfer application on $w$ of AFHQv2 dataset, run
 ```
-python run.py -l
+uv run python run.py -l
 ```
 
 Then, you can load the saved $z$ by click `load z` button in the top right corner of the GUI. Then select the file in directory:

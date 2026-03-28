@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from lcip_app.gui_support import import_basic_gui, import_gan_gui
 from lcip_app.settings import DEFAULT_SAVED_MODEL_DIR, STYLEGAN_CHECKPOINT_PATH
 
 
@@ -10,11 +11,11 @@ def train_new_model_basic(
     clf=None,
     GRID: int = 100,
 ) -> int:
-    from gui import LCIP_GUI_Basic
     from lcip_app.datasets import load_basic_dataset
     from lcip_app.factories import fit_projection_model, train_classifier
     from lcip_app.runtime import show_window
 
+    LCIP_GUI_Basic = import_basic_gui()
     dataset = load_basic_dataset(dataset_name)
     classifier = train_classifier(dataset.features, dataset.labels) if clf else None
     trained_projection = fit_projection_model(
@@ -45,11 +46,11 @@ def train_new_model_gan(
     clf=None,
     GRID: int = 100,
 ) -> int:
-    from gui import LCIP_GUI_GAN
     from lcip_app.datasets import load_gan_dataset
     from lcip_app.factories import fit_projection_model, train_classifier
     from lcip_app.runtime import show_window
 
+    LCIP_GUI_GAN = import_gan_gui()
     dataset = load_gan_dataset()
     classifier = train_classifier(dataset.features, dataset.labels) if clf else None
     trained_projection = fit_projection_model(
@@ -77,7 +78,6 @@ def train_new_model_gan(
 
 
 def load_saved_paper(folder: str | Path = DEFAULT_SAVED_MODEL_DIR, clf=None, GRID: int = 100) -> int:
-    from gui import LCIP_GUI_GAN
     import numpy as np
     import torch
 
@@ -86,6 +86,7 @@ def load_saved_paper(folder: str | Path = DEFAULT_SAVED_MODEL_DIR, clf=None, GRI
     from lcip_app.factories import train_classifier
     from lcip_app.runtime import show_window
 
+    LCIP_GUI_GAN = import_gan_gui()
     folder_path = Path(folder)
     dataset = load_gan_dataset()
     data_dict = np.load(folder_path / "data_dict.npz")

@@ -14,6 +14,6 @@ cd ..
 
 
 :: Download the model (using curl instead of wget, which is available on Windows 10+)
-python .\scripts\get_dataset_and_model.py
+uv run python .\scripts\get_dataset_and_model.py
 
 pause
