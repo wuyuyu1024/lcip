@@ -16,6 +16,9 @@
   <div align="center">
     <img src="LCIP.gif", width="750">
   </div>
+  <p align="center">
+    <a href="https://www.youtube.com/watch?v=9h5rFLiETS0"><strong>Demo Video</strong></a>
+  </p>
 <!-- 
   <p align="center">
   <br>
