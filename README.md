@@ -30,7 +30,7 @@ The installation steps involve the following commands:
 uv sync --python 3.11
 ```
 
-<li>Then run the script to clone stylanGAN2 dependency, download the pre-trained models, and download the datasets.
+<li>Then run the script to clone the StyleGAN2 dependency, download the pretrained models, and download the datasets.
 
 For Linux, run:
 
@@ -38,7 +38,7 @@ For Linux, run:
 ```sh
 sh get_data_model.sh
 ```
-If you are using windows, you can run:
+If you are using Windows, run:
 
 ```bat
 .\get_data_model.bat
@@ -72,17 +72,18 @@ uv run python run.py -d mnist
 This GUI is designed for our proposed controllable inverse projection method. You can control the inverse projection locally by dragging the sliders, and see the changes in real-time.
 
 ### More functions
-This tool can also be used for general inverse projection method (e.g., [NNinv](https://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA19/paper.pdf), [iLAMP](https://ieeexplore.ieee.org/document/6400489), [RBF](https://www.sciencedirect.com/science/article/pii/S0097849315000230), [iMDS](http://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA24/paper.pdf)). However, users can only interact with the static inverse projection.
+This tool can also be used for general inverse projection methods such as [NNinv](https://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA19/paper.pdf), [iLAMP](https://ieeexplore.ieee.org/document/6400489), [RBF](https://www.sciencedirect.com/science/article/pii/S0097849315000230), and [iMDS](http://webspace.science.uu.nl/~telea001/uploads/PAPERS/EuroVA24/paper.pdf). In these modes, users interact with a static inverse projection.
 
 
-<strong>Example</strong>: To start the GUI with `Fashion-MNIST` dataset with `UMAP ` as the projection and `NNinv` as the inverse projection method, run
+<strong>Example</strong>: To start the GUI with `Fashion-MNIST`, `UMAP` as the projection, and `NNinv` as the inverse projection method, run:
 
 ```sh
 uv run python run.py -d fashionmnist -p umap -i nninv
 ```
 
-<strong>Decision map example</strong>: To start the GUI with decision map on MNIST dataset, run:
-```
+<strong>Decision map example</strong>: To start the GUI with a decision map on MNIST, run:
+
+```sh
 uv run python run.py -d mnist -c
 ```
 
@@ -96,10 +97,10 @@ To reproduce the style transfer application on $w$ of AFHQv2 dataset, run
 uv run python run.py -l
 ```
 
-Then, you can load the saved $z$ by click `load z` button in the top right corner of the GUI. Then select the file in directory:
+Then load the saved $z$ by clicking the `load z` button in the top-right corner of the GUI and selecting:
 `./models/wAFHQv2_paper/z_paper_saved.npy`.
 
-Next you could click `Map content` drop box and select 'Distance to the initial surface' to see the difference. 
+Next, open the `Map content` dropdown and select `Distance to the initial surface`.
 
 
 ## Acknowledgement
@@ -108,6 +109,14 @@ The latent codes of AFHQv2 dataset are obtained by inverting the StyleGAN2 model
 [NVlabs/stylegan2-ada-pytorch/projector.py](https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/projector.py).
 The demo on AFHQv2 dataset uses [StyleGAN2](https://github.com/NVlabs/stylegan2-ada-pytorch) code and its pretrained model to generate images from the latent codes.
 
+## Citation
+
+GitHub can read the repository citation metadata from [`CITATION.cff`](CITATION.cff). If you use LCIP, please cite the software and associated paper.
+
+## License
+
+The original LCIP source code in this repository is released under the MIT License. See [`LICENSE`](LICENSE) for details. Downloaded third-party dependencies, pretrained models, datasets, and external assets retain their own licenses and terms.
+
 ## BibTeX
 
 ```bibtex
@@ -115,6 +124,6 @@ The demo on AFHQv2 dataset uses [StyleGAN2](https://github.com/NVlabs/stylegan2-
 	title = {{LCIP} implementation source code},
 	url = {https://github.com/wuyuyu1024/lcip/},
 	author = {Wang, Yu and Dennig, Frederik and Behrisch, Michael and Telea, Alexandru},
-	year = {2025},
+	year = {2026},
 }
 ```
